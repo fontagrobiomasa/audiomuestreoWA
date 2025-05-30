@@ -125,37 +125,38 @@ if uploaded_zip and st.button("Procesar .zip"):
                     st.error(f"Error general durante la transcripción: {e}")
 
                 if resultados:
-                    df_resultados = pd.DataFrame(resultados)
+                    # Guardar en session_state si no está cargado
+                    if "df_resultados" not in st.session_state:
+                        st.session_state.df_resultados = pd.DataFrame(resultados)
+                        st.session_state.df_resultados["Seleccionar"] = False
 
-                    # Inicializamos columna de selección si no existe
-                    if "Seleccionar" not in df_resultados.columns:
-                        df_resultados["Seleccionar"] = [False] * len(df_resultados)
+# Mostrar tabla con selección (aunque no se haya vuelto a cargar)
+if "df_resultados" in st.session_state:
+    st.markdown("### Resultados por punto (marcá las filas)")
+    edited_df = st.data_editor(
+        st.session_state.df_resultados,
+        key="data_editor",
+        use_container_width=True,
+        column_config={
+            "Seleccionar": st.column_config.CheckboxColumn(
+                "Seleccionar", help="Marcá los puntos que querés incluir"
+            )
+        },
+        hide_index=True
+    )
 
-                    st.markdown("### Resultados por punto (marcá las filas)")
-                    edited_df = st.data_editor(
-                        df_resultados,
-                        key="data_editor",
-                        use_container_width=True,
-                        column_config={
-                            "Seleccionar": st.column_config.CheckboxColumn(
-                                "Seleccionar", help="Marcá los puntos que querés incluir"
-                            )
-                        },
-                        hide_index=True
-                    )
+    seleccionados = edited_df[edited_df["Seleccionar"] == True]
 
-                    seleccionados = edited_df[edited_df["Seleccionar"] == True]
-
-                    if not seleccionados.empty:
-                        try:
-                            cadena = ";".join(
-                                f"{row['Lat']},{row['Lon']},{row['Mediana']}"
-                                for _, row in seleccionados.iterrows()
-                                if isinstance(row["Mediana"], (int, float))
-                            )
-                            st.markdown("### Cadena generada (lat,lon,mediana):")
-                            st.text_area("Cadena generada:", cadena, height=100)
-                        except Exception as e:
-                            st.error(f"No se pudo generar la cadena: {e}")
-                    else:
-                        st.info("Marcá al menos una fila para generar la cadena.")
+    if not seleccionados.empty:
+        try:
+            cadena = ";".join(
+                f"{row['Lat']},{row['Lon']},{row['Mediana']}"
+                for _, row in seleccionados.iterrows()
+                if isinstance(row["Mediana"], (int, float))
+            )
+            st.markdown("### Cadena generada (lat,lon,mediana):")
+            st.text_area("Cadena generada:", cadena, height=100)
+        except Exception as e:
+            st.error(f"No se pudo generar la cadena: {e}")
+    else:
+        st.info("Marcá al menos una fila para generar la cadena.")
