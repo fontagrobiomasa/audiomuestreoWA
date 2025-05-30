@@ -99,12 +99,12 @@ if uploaded_zip and st.button("Procesar .zip"):
                                 "Lat": punto["lat"],
                                 "Lon": punto["lon"],
                                 "Archivo": punto["audio"],
+                                "Mediana": round(mediana, 2),
                                 "N": n,
                                 "Promedio": round(promedio, 2),
                                 "Desvío estándar": round(desvio, 2),
                                 "Mínimo": round(minimo, 2),
-                                "Máximo": round(maximo, 2),
-                                "Mediana": round(mediana, 2)
+                                "Máximo": round(maximo, 2)
                             })
 
                         except Exception as e:
@@ -113,24 +113,31 @@ if uploaded_zip and st.button("Procesar .zip"):
                                 "Lat": punto["lat"],
                                 "Lon": punto["lon"],
                                 "Archivo": punto["audio"],
+                                "Mediana": "-",
                                 "N": "Error",
                                 "Promedio": "-",
                                 "Desvío estándar": f"{e}",
                                 "Mínimo": "-",
-                                "Máximo": "-",
-                                "Mediana": "-"
+                                "Máximo": "-"
                             })
 
                 except Exception as e:
                     st.error(f"Error general durante la transcripción: {e}")
 
                 if resultados:
-                    # Guardar en session_state si no está cargado
                     if "df_resultados" not in st.session_state:
-                        st.session_state.df_resultados = pd.DataFrame(resultados)
-                        st.session_state.df_resultados["Seleccionar"] = False
+                        df_resultados = pd.DataFrame(resultados)
+                        df_resultados["Seleccionar"] = False
 
-# Mostrar tabla con selección (aunque no se haya vuelto a cargar)
+                        # Reordenar columnas
+                        orden = ["Seleccionar", "Punto", "Lat", "Lon", "Archivo", "Mediana", "N", "Promedio", 
+                                 "Desvío estándar", "Mínimo", "Máximo"]
+                        columnas_validas = [col for col in orden if col in df_resultados.columns]
+                        df_resultados = df_resultados[columnas_validas]
+
+                        st.session_state.df_resultados = df_resultados
+
+# Mostrar tabla con selección si ya existe
 if "df_resultados" in st.session_state:
     st.markdown("### Resultados por punto (marcá las filas)")
     edited_df = st.data_editor(
