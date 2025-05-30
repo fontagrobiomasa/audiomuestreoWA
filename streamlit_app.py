@@ -6,7 +6,6 @@ import re
 import numpy as np
 import pandas as pd
 from faster_whisper import WhisperModel
-from io import TextIOWrapper
 
 st.title("AudioMuestreo - Chat de WhatsApp")
 
@@ -36,14 +35,13 @@ if uploaded_zip and st.button("Procesar .zip"):
         if not chat_txt:
             st.error("No se encontró archivo .txt del chat en el .zip.")
         else:
-            # Leer el chat
             with open(chat_txt, 'r', encoding='utf-8') as f:
                 chat_lines = f.readlines()
 
             puntos = []
             current_point = {}
             for line in chat_lines:
-                # Buscar imagen (inicia un nuevo punto)
+                # Buscar imagen
                 if re.search(r'IMG.*\.jpg', line):
                     current_point = {
                         "foto": re.search(r'IMG.*\.jpg', line).group(),
@@ -92,9 +90,10 @@ if uploaded_zip and st.button("Procesar .zip"):
                                 desvio = np.std(alturas_array)
                                 minimo = np.min(alturas_array)
                                 maximo = np.max(alturas_array)
+                                mediana = np.median(alturas_array)
                                 n = len(alturas_array)
                             else:
-                                promedio = desvio = minimo = maximo = n = 0
+                                promedio = desvio = minimo = maximo = mediana = n = 0
 
                             resultados.append({
                                 "Punto": punto["nombre"],
@@ -103,6 +102,7 @@ if uploaded_zip and st.button("Procesar .zip"):
                                 "Archivo": punto["audio"],
                                 "N": n,
                                 "Promedio": round(promedio, 2),
+                                "Mediana": round(mediana, 2),
                                 "Desvío estándar": round(desvio, 2),
                                 "Mínimo": round(minimo, 2),
                                 "Máximo": round(maximo, 2)
@@ -116,6 +116,7 @@ if uploaded_zip and st.button("Procesar .zip"):
                                 "Archivo": punto["audio"],
                                 "N": "Error",
                                 "Promedio": "-",
+                                "Mediana": "-",
                                 "Desvío estándar": f"{e}",
                                 "Mínimo": "-",
                                 "Máximo": "-"
@@ -128,3 +129,25 @@ if uploaded_zip and st.button("Procesar .zip"):
                     df_resultados = pd.DataFrame(resultados)
                     st.markdown("### Resultados por punto")
                     st.dataframe(df_resultados, use_container_width=True)
+
+                    st.markdown("### Selección de puntos para exportar")
+
+                    selected_rows = st.multiselect(
+                        "Seleccioná los puntos para generar la cadena (por nombre de punto):",
+                        options=df_resultados["Punto"].tolist()
+                    )
+
+                    if selected_rows:
+                        df_sel = df_resultados[df_resultados["Punto"].isin(selected_rows)]
+
+                        try:
+                            cadena = ";".join(
+                                f"{row['Lat']},{row['Lon']},{row['Mediana']}"
+                                for _, row in df_sel.iterrows()
+                                if isinstance(row["Mediana"], (int, float))
+                            )
+                            st.text_area("Cadena generada (lat,lon,mediana):", cadena, height=100)
+                        except Exception as e:
+                            st.error(f"No se pudo generar la cadena: {e}")
+                    else:
+                        st.info("Seleccioná al menos un punto para generar la cadena.")
