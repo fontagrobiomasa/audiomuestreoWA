@@ -58,3 +58,99 @@ if uploaded_zip and st.button("Procesar .zip"):
                         current_point["lat"] = float(lat)
                         current_point["lon"] = float(lon)
                 elif re.search(r'PTT.*\.opus', line):
+                    audio_match = re.search(r'PTT.*\.opus', line)
+                    current_point["audio"] = audio_match.group()
+                    puntos.append(current_point)
+                    current_point = {}
+
+            if not puntos:
+                st.warning("No se detectaron puntos válidos en el chat.")
+            else:
+                st.info(f"Se detectaron {len(puntos)} puntos para procesar.")
+                resultados = []
+
+                try:
+                    model = WhisperModel("base", compute_type="int8")
+
+                    for punto in puntos:
+                        audio_path = os.path.join(tmpdir, punto["audio"])
+                        if not os.path.exists(audio_path):
+                            st.warning(f"No se encontró el archivo de audio: {punto['audio']}")
+                            continue
+
+                        try:
+                            segments, _ = model.transcribe(audio_path, language=lang)
+                            texto = " ".join([seg.text for seg in segments])
+                            alturas = extraer_alturas(texto)
+
+                            if alturas:
+                                alturas_array = np.array(alturas)
+                                promedio = np.mean(alturas_array)
+                                desvio = np.std(alturas_array)
+                                minimo = np.min(alturas_array)
+                                maximo = np.max(alturas_array)
+                                mediana = np.median(alturas_array)
+                                n = len(alturas_array)
+                            else:
+                                promedio = desvio = minimo = maximo = mediana = n = 0
+
+                            resultados.append({
+                                "Punto": punto["nombre"],
+                                "Lat": punto["lat"],
+                                "Lon": punto["lon"],
+                                "Archivo": punto["audio"],
+                                "N": n,
+                                "Promedio": round(promedio, 2),
+                                "Desvío estándar": round(desvio, 2),
+                                "Mínimo": round(minimo, 2),
+                                "Máximo": round(maximo, 2),
+                                "Mediana": round(mediana, 2)
+                            })
+
+                        except Exception as e:
+                            resultados.append({
+                                "Punto": punto["nombre"],
+                                "Lat": punto["lat"],
+                                "Lon": punto["lon"],
+                                "Archivo": punto["audio"],
+                                "N": "Error",
+                                "Promedio": "-",
+                                "Desvío estándar": f"{e}",
+                                "Mínimo": "-",
+                                "Máximo": "-",
+                                "Mediana": "-"
+                            })
+
+                except Exception as e:
+                    st.error(f"Error general durante la transcripción: {e}")
+
+                if resultados:
+                    df_resultados = pd.DataFrame(resultados)
+
+                    # Agregar columna para seleccionar
+                    df_resultados["Seleccionar"] = False
+
+                    st.markdown("### Resultados por punto (marcá las filas)")
+                    edited_df = st.data_editor(
+                        df_resultados,
+                        num_rows="dynamic",
+                        use_container_width=True,
+                        column_config={"Seleccionar": st.column_config.CheckboxColumn("Seleccionar")},
+                        hide_index=True
+                    )
+
+                    seleccionados = edited_df[edited_df["Seleccionar"] == True]
+
+                    if not seleccionados.empty:
+                        try:
+                            cadena = ";".join(
+                                f"{row['Lat']},{row['Lon']},{row['Mediana']}"
+                                for _, row in seleccionados.iterrows()
+                                if isinstance(row["Mediana"], (int, float))
+                            )
+                            st.markdown("### Cadena generada (lat,lon,mediana):")
+                            st.text_area("Cadena generada:", cadena, height=100)
+                        except Exception as e:
+                            st.error(f"No se pudo generar la cadena: {e}")
+                    else:
+                        st.info("Marcá al menos una fila para generar la cadena.")
