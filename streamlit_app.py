@@ -127,15 +127,20 @@ if uploaded_zip and st.button("Procesar .zip"):
                 if resultados:
                     df_resultados = pd.DataFrame(resultados)
 
-                    # Agregar columna para seleccionar
-                    df_resultados["Seleccionar"] = False
+                    # Inicializamos columna de selección si no existe
+                    if "Seleccionar" not in df_resultados.columns:
+                        df_resultados["Seleccionar"] = [False] * len(df_resultados)
 
                     st.markdown("### Resultados por punto (marcá las filas)")
                     edited_df = st.data_editor(
                         df_resultados,
-                        num_rows="dynamic",
+                        key="data_editor",
                         use_container_width=True,
-                        column_config={"Seleccionar": st.column_config.CheckboxColumn("Seleccionar")},
+                        column_config={
+                            "Seleccionar": st.column_config.CheckboxColumn(
+                                "Seleccionar", help="Marcá los puntos que querés incluir"
+                            )
+                        },
                         hide_index=True
                     )
 
