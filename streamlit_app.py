@@ -98,13 +98,13 @@ if uploaded_zip and st.button("Procesar .zip"):
                                 "Punto": punto["nombre"],
                                 "Lat": punto["lat"],
                                 "Lon": punto["lon"],
-                                "Archivo": punto["audio"],
-                                "N": n,
+                                "Mediana": round(mediana, 2),
                                 "Promedio": round(promedio, 2),
                                 "Desvío estándar": round(desvio, 2),
                                 "Mínimo": round(minimo, 2),
                                 "Máximo": round(maximo, 2),
-                                "Mediana": round(mediana, 2)
+                                "N": n,
+                                "Archivo": punto["audio"]
                             })
 
                         except Exception as e:
@@ -112,13 +112,13 @@ if uploaded_zip and st.button("Procesar .zip"):
                                 "Punto": punto["nombre"],
                                 "Lat": punto["lat"],
                                 "Lon": punto["lon"],
-                                "Archivo": punto["audio"],
-                                "N": "Error",
+                                "Mediana": "-",
                                 "Promedio": "-",
                                 "Desvío estándar": f"{e}",
                                 "Mínimo": "-",
                                 "Máximo": "-",
-                                "Mediana": "-"
+                                "N": "Error",
+                                "Archivo": punto["audio"]                                
                             })
 
                 except Exception as e:
@@ -143,6 +143,7 @@ if "df_resultados" in st.session_state:
             )
         },
         hide_index=True
+    edited_df = edited_df[["Seleccionar", "Punto", "Lat", "Lon", "Mediana", "Promedio","Desvío estándar", "Mínimo", "Máximo","N","Archivo"]]
     )
 
     seleccionados = edited_df[edited_df["Seleccionar"] == True]
