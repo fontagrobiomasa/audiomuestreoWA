@@ -7,6 +7,8 @@ import numpy as np
 import pandas as pd
 from faster_whisper import WhisperModel
 
+st.set_page_config(layout="wide")
+
 st.title("AudioMuestreo - Chat de WhatsApp")
 
 st.markdown("""
