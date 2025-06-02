@@ -152,6 +152,9 @@ if "df_resultados" in st.session_state:
         column_config={
             "Seleccionar": st.column_config.CheckboxColumn(
                 "Seleccionar", help="Marcá los puntos que querés incluir"
+            ),
+            "Mediana": st.column_config.NumberColumn(
+                "Mediana", help="Valor editable de la mediana (modificá si hubo error)", format="%.2f"
             )
         },
         hide_index=True
