@@ -143,7 +143,6 @@ if "df_resultados" in st.session_state:
             )
         },
         hide_index=True
-    edited_df = edited_df[["Seleccionar", "Punto", "Lat", "Lon", "Mediana", "Promedio","Desvío estándar", "Mínimo", "Máximo","N","Archivo"]]
     )
 
     seleccionados = edited_df[edited_df["Seleccionar"] == True]
