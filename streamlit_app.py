@@ -133,8 +133,16 @@ if uploaded_zip and st.button("Procesar .zip"):
 # Mostrar tabla con selección (aunque no se haya vuelto a cargar)
 if "df_resultados" in st.session_state:
     st.markdown("### Resultados por punto (marcá las filas)")
+
+    # Reordenar columnas antes de mostrar (por si se perdió el orden en una edición previa)
+    df_editable = st.session_state.df_resultados.copy()
+    columnas_ordenadas = ["Seleccionar", "Punto", "Lat", "Lon", "Archivo", "Mediana", "N", "Promedio", 
+                          "Desvío estándar", "Mínimo", "Máximo"]
+    columnas_presentes = [col for col in columnas_ordenadas if col in df_editable.columns]
+    df_editable = df_editable[columnas_presentes]
+
     edited_df = st.data_editor(
-        st.session_state.df_resultados,
+        df_editable,
         key="data_editor",
         use_container_width=True,
         column_config={
