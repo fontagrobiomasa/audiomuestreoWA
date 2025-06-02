@@ -167,11 +167,11 @@ if "df_resultados" in st.session_state:
     if not seleccionados.empty:
         try:
             cadena = ";".join(
-                f"{row['Lat']},{row['Lon']},{row['Mediana']}"
+                f"{row['Lat']},{row['Lon']},{row['Altura']}"
                 for _, row in seleccionados.iterrows()
-                if isinstance(row["Mediana"], (int, float))
+                if isinstance(row["Altura"], (int, float))
             )
-            st.markdown("### Cadena generada (lat,lon,mediana):")
+            st.markdown("### Cadena generada (lat,lon,altura):")
             st.text_area("Cadena generada:", cadena, height=100)
         except Exception as e:
             st.error(f"No se pudo generar la cadena: {e}")
