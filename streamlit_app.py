@@ -101,6 +101,7 @@ if uploaded_zip and st.button("Procesar .zip"):
                                 "Punto": punto["nombre"],
                                 "Lat": punto["lat"],
                                 "Lon": punto["lon"],
+                                "Altura": round(mediana, 2),
                                 "Mediana": round(mediana, 2),
                                 "Promedio": round(promedio, 2),
                                 "Desvío estándar": round(desvio, 2),
@@ -116,6 +117,7 @@ if uploaded_zip and st.button("Procesar .zip"):
                                 "Punto": punto["nombre"],
                                 "Lat": punto["lat"],
                                 "Lon": punto["lon"],
+                                "Altura": "-",
                                 "Mediana": "-",
                                 "Promedio": "-",
                                 "Desvío estándar": f"{e}",
@@ -141,7 +143,7 @@ if "df_resultados" in st.session_state:
 
     # Reordenar columnas antes de mostrar (por si se perdió el orden en una edición previa)
     df_editable = st.session_state.df_resultados.copy()
-    columnas_ordenadas = ["Seleccionar", "Punto", "Lat", "Lon", "Mediana", "Promedio", "Desvío estándar", "Mínimo", "Máximo"", N", "FechaHora", "Archivo"]
+    columnas_ordenadas = ["Seleccionar", "Punto", "Lat", "Lon", "Altura", "Mediana", "Promedio", "Desvío estándar", "Mínimo", "Máximo"", N", "FechaHora", "Archivo"]
     columnas_presentes = [col for col in columnas_ordenadas if col in df_editable.columns]
     df_editable = df_editable[columnas_presentes]
 
@@ -153,8 +155,8 @@ if "df_resultados" in st.session_state:
             "Seleccionar": st.column_config.CheckboxColumn(
                 "Seleccionar", help="Marcá los puntos que querés incluir"
             ),
-            "Mediana": st.column_config.NumberColumn(
-                "Mediana", help="Valor editable de la mediana (modificá si hubo error)", format="%.2f"
+            "Altura": st.column_config.NumberColumn(
+                "Altura", help="Valor editable de la mediana (modificá si hubo error)", format="%.2f"
             )
         },
         hide_index=True
