@@ -145,7 +145,7 @@ if "df_resultados" in st.session_state:
 
     # Reordenar columnas antes de mostrar (por si se perdió el orden en una edición previa)
     df_editable = st.session_state.df_resultados.copy()
-    columnas_ordenadas = ["Seleccionar", "Punto", "Lat", "Lon", "Altura", "Mediana", "Promedio", "Desvío estándar", "Mínimo", "Máximo"", N", "FechaHora", "Archivo"]
+    columnas_ordenadas = ["Seleccionar", "Punto", "Lat", "Lon", "Altura", "Mediana", "Promedio", "Desvío estándar", "Mínimo", "Máximo", "N", "FechaHora", "Archivo"]
     columnas_presentes = [col for col in columnas_ordenadas if col in df_editable.columns]
     df_editable = df_editable[columnas_presentes]
 
