@@ -42,12 +42,15 @@ if uploaded_zip and st.button("Procesar .zip"):
             current_point = {}
             for line in chat_lines:
                 if re.search(r'IMG.*\.jpg', line):
+                    match_fh = re.match(r"(\d{1,2}/\d{1,2}/\d{4}, \d{1,2}:\d{2})", line)
+                    fecha_hora = match_fh.group(1) if match_fh else ""
                     current_point = {
                         "foto": re.search(r'IMG.*\.jpg', line).group(),
                         "nombre": None,
                         "lat": None,
                         "lon": None,
-                        "audio": None
+                        "audio": None,
+                        "fecha_hora": fecha_hora
                     }
                 elif current_point.get("foto") and current_point["nombre"] is None:
                     current_point["nombre"] = line.strip()
@@ -104,6 +107,7 @@ if uploaded_zip and st.button("Procesar .zip"):
                                 "Mínimo": round(minimo, 2),
                                 "Máximo": round(maximo, 2),
                                 "N": n,
+                                "FechaHora": punto.get("fecha_hora", ""),
                                 "Archivo": punto["audio"]
                             })
 
@@ -118,6 +122,7 @@ if uploaded_zip and st.button("Procesar .zip"):
                                 "Mínimo": "-",
                                 "Máximo": "-",
                                 "N": "Error",
+                                "FechaHora": "-",
                                 "Archivo": punto["audio"]                                
                             })
 
@@ -136,7 +141,7 @@ if "df_resultados" in st.session_state:
 
     # Reordenar columnas antes de mostrar (por si se perdió el orden en una edición previa)
     df_editable = st.session_state.df_resultados.copy()
-    columnas_ordenadas = ["Seleccionar", "Punto", "Lat", "Lon", "Mediana", "Promedio", "Desvío estándar", "Mínimo", "Máximo"", N", "Archivo"]
+    columnas_ordenadas = ["Seleccionar", "Punto", "Lat", "Lon", "Mediana", "Promedio", "Desvío estándar", "Mínimo", "Máximo"", N", "FechaHora", "Archivo"]
     columnas_presentes = [col for col in columnas_ordenadas if col in df_editable.columns]
     df_editable = df_editable[columnas_presentes]
 
