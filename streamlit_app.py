@@ -168,7 +168,7 @@ if "df_resultados" in st.session_state:
 
     if not seleccionados.empty:
         try:
-            cadena = ";".join(
+            cadena = "Lat,Lon,Altura;".join(
                 f"{row['Lat']},{row['Lon']},{row['Altura']}"
                 for _, row in seleccionados.iterrows()
                 if isinstance(row["Altura"], (int, float))
