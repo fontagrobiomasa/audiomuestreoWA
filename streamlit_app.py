@@ -43,11 +43,12 @@ if uploaded_zip and st.button("Procesar .zip"):
             puntos = []
             current_point = {}
             for line in chat_lines:
-                if re.search(r'IMG.*\.jpg', line):
+                if re.search(r'\.jpg', line, re.IGNORECASE):
                     match_fh = re.match(r"(\d{1,2}/\d{1,2}/\d{4}, \d{1,2}:\d{2})", line)
                     fecha_hora = match_fh.group(1) if match_fh else ""
+                    foto_match = re.search(r'[^ ]+\.jpg', line, re.IGNORECASE)
                     current_point = {
-                        "foto": re.search(r'IMG.*\.jpg', line).group(),
+                        "foto": foto_match.group() if foto_match else "",
                         "nombre": None,
                         "lat": None,
                         "lon": None,
@@ -62,12 +63,13 @@ if uploaded_zip and st.button("Procesar .zip"):
                         lat, lon = coords[0]
                         current_point["lat"] = float(lat)
                         current_point["lon"] = float(lon)
-                elif re.search(r'PTT.*\.opus', line):
-                    audio_match = re.search(r'PTT.*\.opus', line)
-                    current_point["audio"] = audio_match.group()
-                    puntos.append(current_point)
-                    current_point = {}
-
+                elif re.search(r'\.opus', line, re.IGNORECASE):
+                    audio_match = re.search(r'[^ ]+\.opus', line, re.IGNORECASE)
+                    if audio_match:
+                        current_point["audio"] = audio_match.group()
+                        puntos.append(current_point)
+                        current_point = {}
+                
             if not puntos:
                 st.warning("No se detectaron puntos válidos en el chat.")
             else:
