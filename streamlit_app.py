@@ -62,8 +62,8 @@ if uploaded_zip and st.button("Procesar .zip"):
                         lat, lon = coords[0]
                         current_point["lat"] = float(lat)
                         current_point["lon"] = float(lon)
-                elif re.search(r'PTT.*\.opus', line):
-                    audio_match = re.search(r'PTT.*\.opus', line)
+                elif re.search(r'*\.opus', line):
+                    audio_match = re.search(r'*\.opus', line)
                     current_point["audio"] = audio_match.group()
                     puntos.append(current_point)
                     current_point = {}
