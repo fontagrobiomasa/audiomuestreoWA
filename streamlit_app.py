@@ -47,7 +47,7 @@ if uploaded_zip and st.button("Procesar .zip"):
                     match_fh = re.match(r"(\d{1,2}/\d{1,2}/\d{4}, \d{1,2}:\d{2})", line)
                     fecha_hora = match_fh.group(1) if match_fh else ""
                     current_point = {
-                        "foto": re.search(r'IMG.*\.jpg', line).group(),
+                        "foto": re.search(r'*\.jpg', line).group(),
                         "nombre": None,
                         "lat": None,
                         "lon": None,
