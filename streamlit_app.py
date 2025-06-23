@@ -43,7 +43,7 @@ if uploaded_zip and st.button("Procesar .zip"):
             puntos = []
             current_point = {}
             for line in chat_lines:
-                if re.search(r'IMG.*\.jpg', line):
+                if re.search(r'*\.jpg', line):
                     match_fh = re.match(r"(\d{1,2}/\d{1,2}/\d{4}, \d{1,2}:\d{2})", line)
                     fecha_hora = match_fh.group(1) if match_fh else ""
                     current_point = {
